@@ -1,0 +1,139 @@
+const router = require('express').Router();
+const bcrypt = require('bcryptjs');
+const User = require('../models/User.js'); // Import the User model
+const jwt = require('jsonwebtoken'); // Import jsonwebtoken
+const authMiddleware = require('../middleware/authMiddleware');
+
+// --- User Registration Route ---
+// @route   POST /api/users/register
+// @desc    Register a new user
+// @access  Public
+router.post('/register', async (req, res) => {
+  try {
+    // 1. Destructure username, email, password from request body
+    const { username, email, password } = req.body;
+
+    // 2. Simple Validation: Check if fields are empty
+    if (!username || !email || !password) {
+      return res.status(400).json({ msg: 'Please enter all fields.' });
+    }
+
+    // 3. Check if user already exists
+    const existingUserByEmail = await User.findOne({ email: email });
+    if (existingUserByEmail) {
+      return res.status(400).json({ msg: 'User with this email already exists.' });
+    }
+    const existingUserByUsername = await User.findOne({ username: username });
+    if (existingUserByUsername) {
+        return res.status(400).json({ msg: 'This username is already taken.' });
+    }
+
+    // 4. Hash the password
+    const salt = await bcrypt.genSalt(10); // Generate a salt
+    const hashedPassword = await bcrypt.hash(password, salt); // Hash the password
+
+    // 5. Create a new User instance
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword
+    });
+
+    // 6. Save the new user to the database
+    const savedUser = await newUser.save();
+
+    // 7. Respond with the created user's data (excluding the password)
+    res.status(201).json({
+      user: {
+        id: savedUser._id,
+        username: savedUser.username,
+        email: savedUser.email
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ... (keep the existing register route at the top)
+
+
+// ... (register route code is here) ...
+
+// --- User Login Route ---
+// @route   POST /api/users/login
+// @desc    Authenticate user and get token
+// @access  Public
+router.post('/login', async (req, res) => {
+    try {
+        // 1. Destructure email and password from request body
+        const { email, password } = req.body;
+
+        // 2. Simple Validation
+        if (!email || !password) {
+            return res.status(400).json({ msg: 'Please enter all fields.' });
+        }
+
+        // 3. Check for existing user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ msg: 'Invalid credentials.' });
+        }
+
+        // 4. Validate password
+        // Compare the provided password with the hashed password in the database
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ msg: 'Invalid credentials.' });
+        }
+
+        // 5. If credentials are correct, create a JWT
+        const payload = {
+            user: {
+                id: user.id // The payload contains the user's unique ID
+            }
+        };
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '3h' }, // Token expires in 3 hours
+            (err, token) => {
+                if (err) throw err;
+                // 6. Send the token and user info back to the client
+                res.json({
+                    token,
+                    user: {
+                        id: user.id,
+                        username: user.username
+                    }
+                });
+            }
+        );
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+// --- Get Logged-In User Data Route ---
+// @route   GET /api/users/me
+// @desc    Get current user data (protected)
+// @access  Private
+router.get('/me', authMiddleware, async (req, res) => {
+  try {
+    // req.user.id is available because our authMiddleware added it
+    const user = await User.findById(req.user.id).select('-password'); // .select('-password') excludes the password from the result
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+module.exports = router;
