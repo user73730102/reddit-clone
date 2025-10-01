@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User.js'); // Import the User model
 const jwt = require('jsonwebtoken'); // Import jsonwebtoken
 const authMiddleware = require('../middleware/authMiddleware');
+const Post = require('../models/Post'); // <-- IMPORTANT: Import the Post model
 
 // --- User Registration Route ---
 // @route   POST /api/users/register
@@ -179,7 +180,7 @@ router.put('/update', authMiddleware, async (req, res) => {
 // @desc    Delete authenticated user's account
 // @access  Private
 // ... (imports)
-const Post = require('../models/Post'); // <-- IMPORTANT: Import the Post model
+
 // const Comment = require('../models/Comment'); // <-- You would add this later for comments
 
 // ... (other routes)
