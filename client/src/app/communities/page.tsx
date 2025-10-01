@@ -93,7 +93,7 @@ export default function CommunitiesPage() {
 
         {/* Sidebar: Create Community */}
         <div className="md:col-span-1">
-          <div className="bg-white p-4 rounded-md border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-md border border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-bold mb-4">Create a Community</h2>
             <form onSubmit={handleCreateCommunity} className="space-y-3">
               <input

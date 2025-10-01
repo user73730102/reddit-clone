@@ -9,7 +9,7 @@ export default function Navbar() {
   const { isAuthenticated, user, logout, loading } = useAuth();
 
   return (
-    <nav className="bg-white shadow-sm">
+    <div className="bg-white dark:bg-gray-900 rounded-md border border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
@@ -23,38 +23,33 @@ export default function Navbar() {
             </div>
           </div>
           <div className="flex items-center">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2"> {/* Reduced spacing slightly */}
               <ThemeSwitcher />
-              {/* Don't render buttons until we know the auth state */}
               {!loading && (
                 <>
-                  {isAuthenticated && user ? ( // Check for user object as well for type safety
-                    // Links to show when user IS logged in
+                  {isAuthenticated && user ? (
                     <>
-                      <Link href="/submit" className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                      <Link href="/submit" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
                         Create Post
                       </Link>
                       
-                      {/* --- START OF ADDED CODE --- */}
                       <Link 
                         href={`/user/${user.username}`} 
-                        className="px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50"
+                        className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800"
                       >
                         My Profile
                       </Link>
-                      {/* --- END OF ADDED CODE --- */}
                       
                       <button
                         onClick={logout}
-                        className="px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50"
+                        className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800"
                       >
                         Logout
                       </button>
                     </>
                   ) : (
-                    // Links to show when user IS NOT logged in
                     <>
-                      <Link href="/login" className="px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50">
+                      <Link href="/login" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800">
                         Login
                       </Link>
                       <Link href="/register" className="px-3 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">
@@ -68,6 +63,6 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-    </nav>
+    </div>
   );
 }

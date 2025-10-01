@@ -50,15 +50,7 @@ export default function PostCard({ post, onDelete, onUpdate }: PostCardProps) {
   return (
     <div className="flex bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden transition-all duration-200 hover:border-indigo-500 dark:hover:border-indigo-500">
       {/* Vote Section */}
-      <div className="flex flex-col items-center p-2 bg-gray-50 dark:bg-gray-800">
-        <button className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-          <ArrowBigUp size={20} className="text-gray-500" />
-        </button>
-        <span className="font-bold text-sm my-1">{post.score}</span>
-        <button className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-          <ArrowBigDown size={20} className="text-gray-500" />
-        </button>
-      </div>
+      
 
       {/* Main Content Section */}
       <div className="p-4 flex-grow">
@@ -96,10 +88,7 @@ export default function PostCard({ post, onDelete, onUpdate }: PostCardProps) {
 
         {/* Post Actions Section */}
         <div className="flex items-center space-x-4 mt-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-          <button className="flex items-center space-x-1 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-md">
-            <MessageSquare size={16} />
-            <span>Comments</span>
-          </button>
+          
           
           {isAuthor && (
             <>

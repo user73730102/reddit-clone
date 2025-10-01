@@ -105,50 +105,53 @@ export default function ProfilePage() {
   };
   
   return (
-  <div className="max-w-4xl mx-auto py-8 px-4">
-    <div className="bg-white p-6 rounded-md border border-gray-200 mb-8">
-      <h1 className="text-3xl font-bold">{username}</h1>
-      {/* We can add more user info here, like join date */}
-    </div>
+    <div className="max-w-4xl mx-auto py-8 px-4">
+      {/* Add dark mode classes */}
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-md border border-gray-200 dark:border-gray-700 mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{username}</h1>
+      </div>
 
-    {isOwnProfile && (
-  <div className="bg-white p-6 rounded-md border border-gray-200 mb-8">
-    <h2 className="text-xl font-bold mb-4">Account Settings</h2>
-    
-    {!isEditing ? (
-      <button 
-        onClick={() => setIsEditing(true)}
-        className="text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded"
-      >
-        Edit Profile
-      </button>
-    ) : (
-      <form onSubmit={handleUpdateUser} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Username</label>
-          <input 
-            type="text" 
-            value={editForm.username}
-            onChange={e => setEditForm({...editForm, username: e.target.value})}
-            className="w-full p-2 border border-gray-300 rounded-md"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Email</label>
-          <input 
-            type="email" 
-            value={editForm.email}
-            onChange={e => setEditForm({...editForm, email: e.target.value})}
-            className="w-full p-2 border border-gray-300 rounded-md"
-          />
-        </div>
-        {editError && <p className="text-red-500 text-sm">{editError}</p>}
-        <div className="flex gap-4">
-          <button type="submit" className="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">Save Changes</button>
-          <button type="button" onClick={() => setIsEditing(false)} className="bg-gray-200 text-gray-800 py-2 px-4 rounded hover:bg-gray-300">Cancel</button>
-        </div>
-      </form>
-    )}
+      {isOwnProfile && (
+        <div className="bg-white dark:bg-gray-900 p-6 rounded-md border border-gray-200 dark:border-gray-700 mb-8">
+          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Account Settings</h2>
+          
+          {!isEditing ? (
+            <button 
+              onClick={() => setIsEditing(true)}
+              // Add dark mode styles
+              className="text-sm bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-2 px-4 rounded"
+            >
+              Edit Profile
+            </button>
+          ) : (
+            <form onSubmit={handleUpdateUser} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+                <input 
+                  type="text" 
+                  value={editForm.username}
+                  onChange={e => setEditForm({...editForm, username: e.target.value})}
+                  // Add dark mode styles
+                  className="w-full p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                <input 
+                  type="email" 
+                  value={editForm.email}
+                  onChange={e => setEditForm({...editForm, email: e.target.value})}
+                  // Add dark mode styles
+                  className="w-full p-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md"
+                />
+              </div>
+              {editError && <p className="text-red-500 text-sm">{editError}</p>}
+              <div className="flex gap-4">
+                <button type="submit" className="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">Save Changes</button>
+                <button type="button" onClick={() => setIsEditing(false)} className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-2 px-4 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Cancel</button>
+              </div>
+            </form>
+          )}
 
     <div className="mt-8 border-t pt-4 border-red-300">
       <h3 className="text-lg font-bold text-red-600">Danger Zone</h3>

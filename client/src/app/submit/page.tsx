@@ -86,7 +86,7 @@ export default function SubmitPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
-      <div className="bg-white p-6 rounded-md border border-gray-200">
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-md border border-gray-200 dark:border-gray-700">
         <h1 className="text-2xl font-bold border-b pb-4 mb-6">Create a Post</h1>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Community Selector */}
