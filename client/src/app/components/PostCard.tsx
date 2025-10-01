@@ -5,7 +5,7 @@ import Link from 'next/link';
 import TimeAgo from 'react-timeago';
 import { Post } from '../types'; // Corrected the import path to use '@/' alias
 import { useAuth } from '../context/AuthContext'; // Import the useAuth hook to get user info
-
+import { ArrowBigUp, ArrowBigDown, MessageSquare, Edit, Trash2 } from 'lucide-react';
 // Define the props the component will accept, including the new event handlers
 interface PostCardProps {
   post: Post;
@@ -48,47 +48,69 @@ export default function PostCard({ post, onDelete, onUpdate }: PostCardProps) {
   const isAuthor = isAuthenticated && user?.id === post.author._id;
 
   return (
-    // Removed the hover effect and cursor pointer from the main div as it now contains buttons
-    <div className="bg-white border border-gray-200 rounded-md shadow-sm">
-      <div className="p-4">
+    <div className="flex bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden transition-all duration-200 hover:border-indigo-500 dark:hover:border-indigo-500">
+      {/* Vote Section */}
+      <div className="flex flex-col items-center p-2 bg-gray-50 dark:bg-gray-800">
+        <button className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+          <ArrowBigUp size={20} className="text-gray-500" />
+        </button>
+        <span className="font-bold text-sm my-1">{post.score}</span>
+        <button className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+          <ArrowBigDown size={20} className="text-gray-500" />
+        </button>
+      </div>
+
+      {/* Main Content Section */}
+      <div className="p-4 flex-grow">
         {/* Post Metadata */}
-        <div className="flex items-center text-xs text-gray-500 mb-2">
-          <Link href={`/r/${post.community.name}`} className="font-bold text-gray-800 hover:underline">
+        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-2">
+          <Link href={`/r/${post.community.name}`} className="font-bold text-gray-800 dark:text-gray-200 hover:underline">
             r/{post.community.name}
           </Link>
           <span className="mx-1">•</span>
-          <span>Posted by u/{post.author.username}</span>
+          <span>Posted by 
+            <Link href={`/user/${post.author.username}`} className="ml-1 hover:underline">
+              u/{post.author.username}
+            </Link>
+          </span>
           <span className="mx-1">•</span>
-          {/* Conditionally render TimeAgo only after mounting */}
           {hasMounted ? <TimeAgo date={post.createdAt} /> : <span>...</span>}
         </div>
         
         {/* Post Title */}
-        <h2 className="text-xl font-bold text-gray-900 mb-2">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           {post.title}
         </h2>
         
         {/* Post Content */}
         {post.content && (
-          <p className="text-gray-700 text-sm">
+          <p className="text-gray-700 dark:text-gray-300 text-sm max-h-40 overflow-hidden">
             {post.content}
           </p>
         )}
         {post.imageUrl && (
             <div className="mt-4">
-                <img src={post.imageUrl} alt={post.title} className="max-h-96 w-full object-contain rounded-md" />
+                <img src={post.imageUrl} alt={post.title} className="max-h-[500px] w-full object-contain rounded-md bg-gray-100 dark:bg-gray-800" />
             </div>
         )}
 
         {/* Post Actions Section */}
-        <div className="flex items-center space-x-4 mt-4 text-sm font-medium text-gray-500">
-          {/* We can add a comments button here later */}
+        <div className="flex items-center space-x-4 mt-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+          <button className="flex items-center space-x-1 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-md">
+            <MessageSquare size={16} />
+            <span>Comments</span>
+          </button>
           
-          {/* Conditionally render Edit and Delete buttons only if the user is the author */}
           {isAuthor && (
             <>
-              <button onClick={handleUpdate} className="hover:text-indigo-600">Edit</button>
-              <button onClick={handleDelete} className="hover:text-red-600">Delete</button>
+              <button onClick={handleUpdate} className="flex items-center space-x-1 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-md">
+                <Edit size={16} />
+                <span>Edit</span>
+              </button>
+              <button onClick={handleDelete} className="flex items-center space-x-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 p-2 rounded-md">
+                <Trash2 size={16} />
+                <span>Delete</span>
+              </button>
             </>
           )}
         </div>

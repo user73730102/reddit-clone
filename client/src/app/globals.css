@@ -1,8 +1,12 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-
+/* 
+  This is where you can add your own custom base styles.
+  The body rule you had is perfectly correct and should be here.
+*/
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Set a dark background for the whole app in dark mode */
+  @apply bg-gray-50 dark:bg-gray-950;
 }

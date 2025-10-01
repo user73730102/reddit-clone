@@ -2,7 +2,7 @@ const router = require('express').Router(); // Ensure this is at the top
 const authMiddleware = require('../middleware/authMiddleware');
 const Post = require('../models/Post');
 const Community = require('../models/Community');
-
+const User = require('../models/User');
 // @route   POST /api/posts
 // @desc    Create a new post
 // @access  Private
@@ -52,6 +52,30 @@ router.get('/', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+// @route   GET /api/posts/user/:username
+// @desc    Get all posts by a specific user
+// @access  Public
+router.get('/user/:username', async (req, res) => {
+  try {
+    // CRASH POINT 1: Is the `User` model available here?
+    const user = await User.findOne({ username: req.params.username });
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    // CRASH POINT 2: Is the `Post` model available here?
+    const posts = await Post.find({ author: user._id })
+      .populate('author', ['username'])
+      .populate('community', ['name'])
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 router.get('/community/:communityName', async (req, res) => {
   try {
     // First, find the community by name to get its ID

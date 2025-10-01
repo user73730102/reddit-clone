@@ -135,5 +135,58 @@ router.get('/me', authMiddleware, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+// @route   PUT /api/users/update
+// @desc    Update authenticated user's details (e.g., username, email)
+// @access  Private
+router.put('/update', authMiddleware, async (req, res) => {
+  try {
+    const { username, email } = req.body;
+    
+    // Find the user to update
+    let user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    // Check if new username or email is already taken by someone else
+    if (username && username !== user.username) {
+        const existingUser = await User.findOne({ username });
+        if (existingUser) return res.status(400).json({ msg: 'Username is already taken.' });
+        user.username = username;
+    }
+    if (email && email !== user.email) {
+        const existingUser = await User.findOne({ email });
+        if (existingUser) return res.status(400).json({ msg: 'Email is already in use.' });
+        user.email = email;
+    }
+
+    await user.save();
+    
+    // Send back the updated user data (excluding password)
+    res.json({
+        _id: user._id,
+        username: user.username,
+        email: user.email
+    });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   DELETE /api/users/delete
+// @desc    Delete authenticated user's account
+// @access  Private
+router.delete('/delete', authMiddleware, async (req, res) => {
+  try {
+    // We can add more logic here later, like deleting user's posts and comments
+    await User.findByIdAndDelete(req.user.id);
+    res.json({ msg: 'User account deleted successfully.' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
 
 module.exports = router;
