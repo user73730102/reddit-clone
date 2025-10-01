@@ -178,15 +178,42 @@ router.put('/update', authMiddleware, async (req, res) => {
 // @route   DELETE /api/users/delete
 // @desc    Delete authenticated user's account
 // @access  Private
+// ... (imports)
+const Post = require('../models/Post'); // <-- IMPORTANT: Import the Post model
+// const Comment = require('../models/Comment'); // <-- You would add this later for comments
+
+// ... (other routes)
+
+// @route   DELETE /api/users/delete
+// @desc    Delete authenticated user's account and all their content
+// @access  Private
 router.delete('/delete', authMiddleware, async (req, res) => {
   try {
-    // We can add more logic here later, like deleting user's posts and comments
-    await User.findByIdAndDelete(req.user.id);
-    res.json({ msg: 'User account deleted successfully.' });
+    const userId = req.user.id;
+
+    // --- START OF NEW LOGIC ---
+
+    // 1. Delete all posts authored by the user
+    // The `deleteMany` command is highly efficient for this.
+    await Post.deleteMany({ author: userId });
+
+    // 2. (Future) Delete all comments authored by the user
+    // await Comment.deleteMany({ author: userId });
+
+    // 3. (Future) We could also remove the user from any `members` arrays in Communities,
+    // remove their votes from posts, etc. For now, deleting content is the priority.
+    
+    // --- END OF NEW LOGIC ---
+
+    // Finally, delete the user themselves
+    await User.findByIdAndDelete(userId);
+
+    res.json({ msg: 'User account and all associated posts have been deleted successfully.' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
 });
+
 
 module.exports = router;
