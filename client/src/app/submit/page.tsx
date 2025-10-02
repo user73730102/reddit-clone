@@ -19,9 +19,11 @@ export default function SubmitPage() {
   const [communityName, setCommunityName] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
 
   // UI state
   const [loading, setLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
 
   // Fetch communities when the component mounts
@@ -48,6 +50,11 @@ export default function SubmitPage() {
       router.push('/login');
     }
   }, [isAuthenticated, authLoading, router]);
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setMediaFile(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,20 +65,43 @@ export default function SubmitPage() {
     setLoading(true);
     setError('');
 
-    try {
-      const payload = {
-        title,
-        content,
-        communityName,
-        // We will add imageUrl later
-      };
-      
-      const response = await api.post('/api/posts', payload);
-      
-      // On success, redirect to the homepage to see the new post
-      router.push('/');
+    let mediaUrl = '';
+    let mediaType = '';
 
-    } catch (err: any) {
+    // UPLOAD MEDIA IF IT EXISTS
+    if (mediaFile) {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('file', mediaFile);
+      formData.append('upload_preset', 'reddit_clone_unsigned');
+
+      try {
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`, // Use /auto/upload for mixed types
+          { method: 'POST', body: formData }
+        );
+        const data = await response.json();
+        
+        // Cloudinary response tells us the URL and the type (image/video)
+        mediaUrl = data.secure_url;
+        mediaType = data.resource_type; // This will be 'image' or 'video'
+      }catch (err: any) {
+        console.error("Failed to create post:", err);
+        setError(err.response?.data?.msg || 'Failed to create post.');
+        return;
+        
+      }
+      setIsUploading(false);
+    }
+
+    try {
+      // Send the new mediaUrl and mediaType fields to our backend
+      const payload = { title, content, communityName, mediaUrl, mediaType };
+      
+      await api.post('/api/posts', payload);
+      router.push('/');
+    }
+      catch (err: any) {
       console.error("Failed to create post:", err);
       setError(err.response?.data?.msg || 'Failed to create post.');
     } finally {
@@ -127,6 +157,24 @@ export default function SubmitPage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md h-40 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          {/* Media Upload Input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Image or Video (optional)
+            </label>
+            <input
+              type="file"
+              accept="image/*,video/*" // <-- Allow both image and video files
+              onChange={handleMediaChange} // <-- Update handler name
+              className="mt-1 block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-indigo-50 dark:file:bg-indigo-900/50
+                        file:text-indigo-700 dark:file:text-indigo-300
+                        hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900"
             />
           </div>
 

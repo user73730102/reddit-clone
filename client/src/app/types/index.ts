@@ -2,6 +2,8 @@ export interface Post {
   _id: string;
   title: string;
   content?: string;
+  mediaUrl?: string;   // <-- RENAME from imageUrl
+  mediaType?: string;  // <-- ADD this field
   imageUrl?: string;
   author: {
     _id: string;
@@ -11,6 +13,7 @@ export interface Post {
     _id: string;
     name: string;
   };
+  
   score: number;
   createdAt: string;
 }

@@ -10,8 +10,13 @@ const PostSchema = new Schema({
   content: { // For text-based posts
     type: String,
   },
-  imageUrl: { // For image posts
+  
+  // --- REPLACE imageUrl WITH THESE TWO FIELDS ---
+  mediaUrl: { // For image or video posts
     type: String,
+  },
+  mediaType: { // To distinguish between 'image' and 'video'
+    type: String, 
   },
   author: {
     type: Schema.Types.ObjectId,

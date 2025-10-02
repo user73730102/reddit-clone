@@ -80,11 +80,39 @@ export default function PostCard({ post, onDelete, onUpdate }: PostCardProps) {
             {post.content}
           </p>
         )}
-        {post.imageUrl && (
-            <div className="mt-4">
-                <img src={post.imageUrl} alt={post.title} className="max-h-[500px] w-full object-contain rounded-md bg-gray-100 dark:bg-gray-800" />
+        {(post.mediaUrl || post.imageUrl) && (
+            <div className="mt-4 max-h-[600px] flex justify-center bg-black rounded-md">
+              
+              {/* Case 1: New post with video */}
+              {post.mediaType === 'video' ? (
+                <video 
+                  src={post.mediaUrl} 
+                  controls 
+                  className="max-h-[600px] w-full rounded-md"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              
+              /* Case 2: New post with an image */
+              ) : post.mediaType === 'image' ? (
+                <img 
+                  src={post.mediaUrl} 
+                  alt={post.title} 
+                  className="max-h-[600px] object-contain" 
+                />
+
+              /* Case 3: Old post with an image (fallback) */
+              ) : post.imageUrl ? (
+                <img 
+                  src={post.imageUrl} 
+                  alt={post.title} 
+                  className="max-h-[600px] object-contain" 
+                />
+              ) : null}
+
             </div>
         )}
+        {/* --- END OF CORRECTED MEDIA SECTION --- */}
 
         {/* Post Actions Section */}
         <div className="flex items-center space-x-4 mt-4 text-sm font-medium text-gray-500 dark:text-gray-400">

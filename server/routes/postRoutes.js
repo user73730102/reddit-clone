@@ -6,9 +6,12 @@ const User = require('../models/User');
 // @route   POST /api/posts
 // @desc    Create a new post
 // @access  Private
+// in server/routes/postRoutes.js
+
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { title, content, imageUrl, communityName } = req.body;
+    // Add mediaUrl and mediaType to the destructuring
+    const { title, content, communityName, mediaUrl, mediaType } = req.body;
 
     if (!title || !communityName) {
       return res.status(400).json({ msg: 'Title and community name are required.' });
@@ -22,15 +25,15 @@ router.post('/', authMiddleware, async (req, res) => {
     const newPost = new Post({
       title,
       content,
-      imageUrl,
+      mediaUrl,    // Save the new field
+      mediaType,   // Save the new field
       author: req.user.id,
       community: community._id,
     });
 
     const post = await newPost.save();
     res.status(201).json(post);
-  } catch (err)
- {
+  } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
@@ -41,6 +44,8 @@ router.post('/', authMiddleware, async (req, res) => {
 // @access  Public
 router.get('/', async (req, res) => {
   try {
+    // The .find() method by default should return all fields, but let's be safe.
+    // The main thing is to ensure your Post model on the server is correct.
     const posts = await Post.find()
       .populate('author', ['username'])
       .populate('community', ['name'])
