@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 import ThemeSwitcher from './ThemeSwitcher';
+import Image from 'next/image';
 
 export default function Navbar() {
   const { isAuthenticated, user, logout, loading } = useAuth();
@@ -14,9 +15,17 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-indigo-600">
-                RedditClone
-              </Link>
+              <Link href="/" className="flex-shrink-0 flex items-center space-x-2">
+              <Image
+                src="/logo.svg"
+                alt="RedditClone Logo"
+                width={35}
+                height={35}
+              />
+              <span className="text-xl font-bold text-gray-800 dark:text-gray-200 hidden sm:block">
+                Snappit
+              </span>
+            </Link>
               <Link href="/communities" className="ml-6 text-sm font-medium text-gray-500 hover:text-gray-700">
                 Communities
               </Link>

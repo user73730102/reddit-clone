@@ -5,7 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "seed": "node seeder.js",
+    "destroy": "node seeder.js -d"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +22,7 @@
     "mongoose": "^8.18.3"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.0.0",
     "nodemon": "^3.1.10"
   }
 }

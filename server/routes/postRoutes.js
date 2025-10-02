@@ -11,7 +11,7 @@ const User = require('../models/User');
 router.post('/', authMiddleware, async (req, res) => {
   try {
     // Add mediaUrl and mediaType to the destructuring
-    const { title, content, communityName, mediaUrl, mediaType } = req.body;
+    const { title, content, communityName, mediaPublicId, mediaType } = req.body;
 
     if (!title || !communityName) {
       return res.status(400).json({ msg: 'Title and community name are required.' });
@@ -25,7 +25,7 @@ router.post('/', authMiddleware, async (req, res) => {
     const newPost = new Post({
       title,
       content,
-      mediaUrl,    // Save the new field
+      mediaPublicId,    // Save the new field
       mediaType,   // Save the new field
       author: req.user.id,
       community: community._id,

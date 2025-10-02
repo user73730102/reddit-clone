@@ -65,7 +65,7 @@ export default function SubmitPage() {
     setLoading(true);
     setError('');
 
-    let mediaUrl = '';
+    let mediaPublicId = '';
     let mediaType = '';
 
     // UPLOAD MEDIA IF IT EXISTS
@@ -83,7 +83,7 @@ export default function SubmitPage() {
         const data = await response.json();
         
         // Cloudinary response tells us the URL and the type (image/video)
-        mediaUrl = data.secure_url;
+        mediaPublicId = data.public_id;
         mediaType = data.resource_type; // This will be 'image' or 'video'
       }catch (err: any) {
         console.error("Failed to create post:", err);
@@ -96,7 +96,7 @@ export default function SubmitPage() {
 
     try {
       // Send the new mediaUrl and mediaType fields to our backend
-      const payload = { title, content, communityName, mediaUrl, mediaType };
+      const payload = { title, content, communityName, mediaPublicId , mediaType };
       
       await api.post('/api/posts', payload);
       router.push('/');

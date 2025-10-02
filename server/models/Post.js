@@ -12,7 +12,7 @@ const PostSchema = new Schema({
   },
   
   // --- REPLACE imageUrl WITH THESE TWO FIELDS ---
-  mediaUrl: { // For image or video posts
+  mediaPublicId: { // The unique ID from Cloudinary
     type: String,
   },
   mediaType: { // To distinguish between 'image' and 'video'
