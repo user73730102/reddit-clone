@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-require('dotenv').config();
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,10 +36,10 @@ app.use('/api/communities', require('./routes/communityRoutes'));
 app.use('/api/posts', require('./routes/postRoutes')); 
 
 // Test route (can be removed later)
-app.get('/', (req, res) => {
-  res.send('Hello from the Reddit Clone Backend!');
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port: ${PORT}`);
+    });
+}
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port: ${PORT}`);
-});
+module.exports = app;
