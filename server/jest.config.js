@@ -1,5 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
   verbose: true,
-  setupFiles: ['<rootDir>/jest.setup.js'], // <-- ADD THIS LINE
+  // This line tells Jest to run our setup file before the tests.
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 };
