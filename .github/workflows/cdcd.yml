@@ -18,23 +18,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Create .env file
+        # This creates the file at the correct path: <repo_root>/server/.env
         run: echo "${{ secrets.DOTENV_SERVER }}" > server/.env
 
-      - name: Verify .env file creation
-        run: |
-          echo "Listing contents of server directory:"
-          ls -la server
-          echo "Contents of .env file:"
-          cat server/.env
-
-      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "npm"
           cache-dependency-path: server/package-lock.json
+
       - name: Install & Test Server
+        # This sets the current directory to ./server before running commands
         working-directory: ./server
         run: |
           npm ci
