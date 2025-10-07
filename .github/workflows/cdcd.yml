@@ -1,0 +1,95 @@
+name: CI/CD Pipeline with Docker
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+# Permissions required for pushing Docker images to GitHub Packages
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # --- JOBS FOR TESTING ---
+  test-server:
+    name: Test Server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: server/package-lock.json
+      - name: Install & Test Server
+        working-directory: ./server
+        run: |
+          npm ci
+          npm test
+
+  test-client:
+    name: Test Client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: client/package-lock.json
+      - name: Install & Test Client
+        working-directory: ./client
+        run: |
+          npm ci
+          npm test
+
+  # --- JOB TO BUILD & PUSH DOCKER IMAGES ---
+  build-and-push-images:
+    name: Build & Push Images
+    needs: [test-server, test-client]
+    runs-on: ubuntu-latest
+    # Only run this job on pushes to the main branch
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push server image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/server:latest
+      - name: Build and push client image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./client
+          file: ./client/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/client:latest
+          # Pass the backend URL as a build argument
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+
+  # --- JOB TO DEPLOY (EXAMPLE FOR RENDER) ---
+  # This part is optional and depends on your hosting provider.
+  # If you are not using Render, you can remove this job.
+  deploy:
+    name: Deploy to Hosting Provider
+    needs: build-and-push-images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Server Deploy
+        # Replace with your actual deployment command or hook
+        run: echo "Deploying server..." && curl ${{ secrets.SERVER_DEPLOY_HOOK }}
+      - name: Trigger Client Deploy
+        # Replace with your actual deployment command or hook
+        run: echo "Deploying client..." && curl ${{ secrets.CLIENT_DEPLOY_HOOK }}
