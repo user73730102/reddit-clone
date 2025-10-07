@@ -1,9 +1,7 @@
 const request = require('supertest');
 const app = require('../index'); // Import our server's app object
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
 
-dotenv.config();
 
 // Connect to the database before running tests
 beforeAll(async () => {
