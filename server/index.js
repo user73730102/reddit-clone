@@ -1,9 +1,22 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const Sentry = require('@sentry/node');
 if (process.env.NODE_ENV !== 'test') {
   require('dotenv').config();
 }
+Sentry.init({
+  dsn: process.env.SENTRY_SERVER_DSN,
+  integrations: [
+    // enable HTTP calls tracing
+    new Sentry.Integrations.Http({ tracing: true }),
+    // enable Express.js middleware tracing
+    new Sentry.Integrations.Express({ app: express() }),
+  ],
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0,
+});
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -11,10 +24,14 @@ const corsOptions = {
   origin: process.env.CLIENT_URL, // Only allow requests from our client
   optionsSuccessStatus: 200
 };
+app.use(Sentry.Handlers.requestHandler());
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler());
 app.use(cors(corsOptions));
 
 app.use(cors());
 app.use(express.json());
+app.use(Sentry.Handlers.errorHandler());
 let server; // <-- Define a server variable
 
 if (process.env.NODE_ENV !== 'test') {
@@ -58,5 +75,6 @@ if (process.env.NODE_ENV !== 'test') {
 }
 process.on('SIGTERM', gracefulShutdown);
 process.on('SIGINT', gracefulShutdown);
+
 
 module.exports = app;
