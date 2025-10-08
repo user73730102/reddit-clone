@@ -15,19 +15,33 @@ app.use(cors(corsOptions));
 
 app.use(cors());
 app.use(express.json());
+let server; // <-- Define a server variable
 
-// --- MongoDB Connection ---
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.DATABASE_URL);
-    console.log('MongoDB connected successfully.');
-  } catch (error) {
-    console.error('MongoDB connection failed:', error.message);
-    process.exit(1);
-  }
+if (process.env.NODE_ENV !== 'test') {
+  const connectDB = async () => {
+    try {
+      await mongoose.connect(process.env.DATABASE_URL);
+      console.log('MongoDB connected successfully.');
+      server = app.listen(PORT, () => { // <-- Assign the listener to the server variable
+        console.log(`Server is running on port: ${PORT}`);
+      });
+    } catch (error) {
+      console.error('MongoDB connection failed:', error.message);
+      process.exit(1);
+    }
+  };
+  connectDB();
+}
+const gracefulShutdown = () => {
+  console.log('Received shutdown signal. Closing server and DB connection...');
+  server.close(() => {
+    console.log('HTTP server closed.');
+    mongoose.connection.close(false, () => {
+      console.log('MongoDB connection closed.');
+      process.exit(0);
+    });
+  });
 };
-
-connectDB();
 
 // --- API Routes ---
 // This tells the server to use the routes defined in userRoutes.js
@@ -42,5 +56,7 @@ if (process.env.NODE_ENV !== 'test') {
         console.log(`Server is running on port: ${PORT}`);
     });
 }
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
 
 module.exports = app;
