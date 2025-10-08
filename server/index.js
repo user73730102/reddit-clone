@@ -11,17 +11,16 @@ if (process.env.NODE_ENV !== 'test') {
 const app = express();
 
 // --- Sentry Initialization (Production/Development Only) ---
-// Initialize Sentry only if the DSN is available and not in a test env
 if (process.env.NODE_ENV !== 'test' && process.env.SENTRY_SERVER_DSN) {
   Sentry.init({
     dsn: process.env.SENTRY_SERVER_DSN,
     integrations: [
-      new Sentry.Integration.Http({ tracing: true }),
+      // CORRECTED: Sentry.Integrations (plural)
+      new Sentry.Integrations.Http({ tracing: true }),
       new Sentry.Integrations.Express({ app }),
     ],
     tracesSampleRate: 1.0,
   });
-  // The Sentry request handler must be the first middleware
   app.use(Sentry.Handlers.requestHandler());
   app.use(Sentry.Handlers.tracingHandler());
 }
@@ -31,8 +30,8 @@ const corsOptions = {
   origin: process.env.CLIENT_URL,
   optionsSuccessStatus: 200,
 };
-app.use(cors(corsOptions)); // Use the configured cors middleware
-app.use(express.json());   // Middleware to parse JSON bodies
+app.use(cors(corsOptions));
+app.use(express.json());
 
 // --- API Routes ---
 app.use('/api/users', require('./routes/userRoutes'));
@@ -40,7 +39,6 @@ app.use('/api/communities', require('./routes/communityRoutes'));
 app.use('/api/posts', require('./routes/postRoutes'));
 
 // --- Sentry Error Handler (Production/Development Only) ---
-// This must be after all controllers and before any other error middleware
 if (process.env.NODE_ENV !== 'test' && process.env.SENTRY_SERVER_DSN) {
   app.use(Sentry.Handlers.errorHandler());
 }
@@ -49,7 +47,6 @@ if (process.env.NODE_ENV !== 'test' && process.env.SENTRY_SERVER_DSN) {
 const PORT = process.env.PORT || 5000;
 let server;
 
-// Separate the connection logic so it can be used by tests
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.DATABASE_URL);
@@ -60,38 +57,30 @@ const connectDB = async () => {
   }
 };
 
-// We need to connect to the DB for tests, but not start the server listening.
-// For development/production, we connect and then start listening.
 if (process.env.NODE_ENV !== 'test') {
   connectDB().then(() => {
     server = app.listen(PORT, () => {
       console.log(`Server is running on port: ${PORT}`);
     });
   });
-} else {
-  // For the test environment, we still need to connect to the DB.
-  // The test setup (`beforeAll`) will handle this.
-  // We export the app so supertest can start it on a random port.
 }
 
 // --- Graceful Shutdown Logic ---
-const gracefulShutdown = () => {
+const gracefulShutdown = async () => {
   console.log('Received shutdown signal. Closing server...');
-  // Check if the server is running before trying to close it
   if (server) {
-    server.close(() => {
+    server.close(async () => {
       console.log('HTTP server closed.');
-      mongoose.connection.close(false, () => {
-        console.log('MongoDB connection closed.');
-        process.exit(0);
-      });
-    });
-  } else {
-    // If the server isn't running, just close the DB connection
-    mongoose.connection.close(false, () => {
+      // CORRECTED: await mongoose.connection.close() with no callback
+      await mongoose.connection.close();
       console.log('MongoDB connection closed.');
       process.exit(0);
     });
+  } else {
+    // CORRECTED: await mongoose.connection.close() with no callback
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed.');
+    process.exit(0);
   }
 };
 
