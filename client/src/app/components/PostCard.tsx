@@ -13,7 +13,6 @@ interface PostCardProps {
   onDelete?: (postId: string) => void;
   onUpdate?: (post: Post) => void;
 }
-const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
 // Helper function to construct Cloudinary URLs
 
@@ -26,7 +25,11 @@ export default function PostCard({ post, onDelete, onUpdate }: PostCardProps) {
   useEffect(() => {
     setHasMounted(true);
   }, []);
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+  // Pass the cloudName as the FIRST argument to the helper function.
   let finalMediaUrl = buildCloudinaryUrl(
+    cloudName,
     post.mediaPublicId,
     post.mediaType,
     post.mediaVersion
@@ -35,6 +38,14 @@ export default function PostCard({ post, onDelete, onUpdate }: PostCardProps) {
     finalMediaUrl = post.mediaUrl || post.imageUrl || null;
   }
   
+  console.group(`--- DEBUGGING POST: "${post.title}" ---`);
+  console.log("Entire Post Object Received:", post);
+  console.log("Cloud Name from process.env:", cloudName);
+  console.log("Public ID being used:", post.mediaPublicId);
+  console.log("Resource Type being used:", post.mediaType);
+  console.log("Version being used:", post.mediaVersion);
+  console.log("FINAL Media URL Generated:", finalMediaUrl);
+  console.groupEnd();
   // Determine the resource type for rendering.
   const resourceType = post.mediaType || post.mediaType;
 

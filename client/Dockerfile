@@ -13,9 +13,11 @@ COPY . .
 
 # 5. Define build arguments for environment variables
 ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME # <-- ADD THIS
 
 # 6. Set environment variables
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=$NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME # <-- ADD THIS
 
 # 7. Build the Next.js app
 RUN npm run build

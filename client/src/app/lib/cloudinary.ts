@@ -1,11 +1,11 @@
 // This function will be our single source of truth for creating Cloudinary URLs.
 export const buildCloudinaryUrl = (
+  cloudName: string | undefined, // <-- Accept cloudName as an argument
   publicId?: string,
   resourceType?: string,
   version?: string
 ): string | null => {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-
+  // The function now no longer depends on process.env directly.
   if (!publicId || !resourceType || !cloudName) {
     return null;
   }

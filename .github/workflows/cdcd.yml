@@ -85,6 +85,7 @@ jobs:
           # Pass the backend URL as a build argument
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
 
   # --- JOB TO DEPLOY (EXAMPLE FOR RENDER) ---
   # This part is optional and depends on your hosting provider.
