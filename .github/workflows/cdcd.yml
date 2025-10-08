@@ -98,5 +98,5 @@ jobs:
         # Replace with your actual deployment command or hook
         run: echo "Deploying server..." && curl ${{ secrets.SERVER_DEPLOY_HOOK }}
       - name: Trigger Client Deploy
-        # Replace with your actual deployment command or hook
+        # Replace with your actual deployment command or hoo
         run: echo "Deploying client..." && curl ${{ secrets.CLIENT_DEPLOY_HOOK }}
