@@ -10,73 +10,68 @@ if (process.env.NODE_ENV !== 'test') {
 
 const app = express();
 
-// --- Sentry Initialization (Production/Development Only) ---
+// --- Sentry Initialization (Using your simpler syntax) ---
 if (process.env.NODE_ENV !== 'test' && process.env.SENTRY_SERVER_DSN) {
   Sentry.init({
-    dsn: process.env.SENTRY_SERVER_DSN,
-    // REMOVED THE INTEGRATIONS BLOCK. The SDK will auto-discover Express.
-    tracesSampleRate: 1.0, // We can keep this for performance monitoring.
+    dsn: process.env.SENTRY_SERVER_DSN, // Use our project's variable name
+    integrations: [Sentry.expressIntegration()], // Your simpler syntax is better!
+    tracesSampleRate: 1.0,
   });
-  app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.tracingHandler());
+  // Sentry's expressIntegration adds these handlers automatically now.
 }
 
 // --- Middleware ---
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
+  origin: process.env.CLIENT_URL, // Restore our security options
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// --- API Routes ---
+// --- API Routes (Using our project's routes) ---
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/communities', require('./routes/communityRoutes'));
 app.use('/api/posts', require('./routes/postRoutes'));
-app.get('/debug-sentry', function mainHandler(req, res) {
-  throw new Error('My first Sentry error!');
-});
 
-// --- Sentry Error Handler (Production/Development Only) ---
+// --- Sentry Error Handler (Using your simpler syntax) ---
 if (process.env.NODE_ENV !== 'test' && process.env.SENTRY_SERVER_DSN) {
-  app.use(Sentry.Handlers.errorHandler());
+  app.use(Sentry.expressErrorHandler()); // Your simpler syntax is better!
 }
 
-// --- Server Startup and Database Connection ---
+// --- Server Startup and Database Connection (Test-safe) ---
 const PORT = process.env.PORT || 5000;
 let server;
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.DATABASE_URL);
+    await mongoose.connect(process.env.DATABASE_URL); // Use our project's variable name
     console.log('MongoDB connected successfully.');
   } catch (error) {
     console.error('MongoDB connection failed:', error.message);
+    Sentry.captureException(error); // Also send DB connection errors to Sentry
     process.exit(1);
   }
 };
 
 if (process.env.NODE_ENV !== 'test') {
   connectDB().then(() => {
-    server = app.listen(PORT, () => {
+    server = app.listen(PORT, '0.0.0.0', () => { // Use '0.0.0.0' for Docker
       console.log(`Server is running on port: ${PORT}`);
     });
   });
 }
 
-// --- Graceful Shutdown Logic ---
+// --- Graceful Shutdown Logic (Restored) ---
 const gracefulShutdown = async () => {
   console.log('Received shutdown signal. Closing server...');
   if (server) {
     server.close(async () => {
       console.log('HTTP server closed.');
-      // CORRECTED: await mongoose.connection.close() with no callback
       await mongoose.connection.close();
       console.log('MongoDB connection closed.');
       process.exit(0);
     });
   } else {
-    // CORRECTED: await mongoose.connection.close() with no callback
     await mongoose.connection.close();
     console.log('MongoDB connection closed.');
     process.exit(0);
