@@ -14,12 +14,8 @@ const app = express();
 if (process.env.NODE_ENV !== 'test' && process.env.SENTRY_SERVER_DSN) {
   Sentry.init({
     dsn: process.env.SENTRY_SERVER_DSN,
-    integrations: [
-      // CORRECTED: Sentry.Integrations (plural)
-      new Sentry.Integrations.Http({ tracing: true }),
-      new Sentry.Integrations.Express({ app }),
-    ],
-    tracesSampleRate: 1.0,
+    // REMOVED THE INTEGRATIONS BLOCK. The SDK will auto-discover Express.
+    tracesSampleRate: 1.0, // We can keep this for performance monitoring.
   });
   app.use(Sentry.Handlers.requestHandler());
   app.use(Sentry.Handlers.tracingHandler());
@@ -37,6 +33,9 @@ app.use(express.json());
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/communities', require('./routes/communityRoutes'));
 app.use('/api/posts', require('./routes/postRoutes'));
+app.get('/debug-sentry', function mainHandler(req, res) {
+  throw new Error('My first Sentry error!');
+});
 
 // --- Sentry Error Handler (Production/Development Only) ---
 if (process.env.NODE_ENV !== 'test' && process.env.SENTRY_SERVER_DSN) {
