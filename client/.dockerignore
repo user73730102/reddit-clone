@@ -1,0 +1,10 @@
+# Ignore dependencies, build output, Git history, and local files
+node_modules
+.next
+.git
+.gitignore
+__tests__
+jest.config.mjs
+jest.setup.js
+npm-debug.log
+.env.local

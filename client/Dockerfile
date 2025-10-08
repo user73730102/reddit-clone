@@ -1,40 +1,45 @@
-# 1. Base Image for building the app
+# --- STAGE 1: BUILDER ---
 FROM node:18-alpine AS builder
-
-# 2. Set working directory
 WORKDIR /app
 
-# 3. Copy package files and install dependencies
+# 1. Copy package files FIRST
 COPY package*.json ./
+
+# 2. Install ALL dependencies (including devDependencies for the build)
+# This is the slowest step and will now be cached effectively.
 RUN npm install
 
-# 4. Copy application code
+# 3. Copy the rest of your application code
+# Changing your components will only invalidate the cache from this point onwards.
 COPY . .
 
-# 5. Define build arguments for environment variables
+# Define build arguments for environment variables
 ARG NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME 
+ARG NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
-# 6. Set environment variables
+# Set environment variables for the build process
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=$NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME 
+ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=$NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
-# 7. Build the Next.js app
+# Build the Next.js app
+# This step will re-run if your source code changes, but it will NOT re-run npm install.
 RUN npm run build
 
-# 8. Production Image
+# --- STAGE 2: PRODUCTION ---
 FROM node:18-alpine
-
 WORKDIR /app
 
-# 9. Copy only the necessary files from the builder stage
+# Set NODE_ENV to production
+ENV NODE_ENV production
+
+# We need to copy only the necessary production dependencies.
+# We can do this by copying package.json and running npm install --production.
+COPY --from=builder /app/package*.json ./
+RUN npm install --production
+
+# Copy the built application from the builder stage
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/public ./public
 
-# 10. Expose the port the app runs on
 EXPOSE 3000
-
-# 11. Command to start the app
 CMD ["npm", "start"]
