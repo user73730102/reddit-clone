@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
   try {
     // The .find() method by default should return all fields, but let's be safe.
     // The main thing is to ensure your Post model on the server is correct.
-    const posts = await Pos
+    const posts = await Post.find()
       .populate('author', ['username'])
       .populate('community', ['name'])
       .sort({ createdAt: -1 });
