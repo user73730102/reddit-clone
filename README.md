@@ -1,6 +1,6 @@
 # A Modern Social Media Platform (Reddit Clone)
 
-Check out the **[Live Demo](https://client-docker.onrender.com/)**.
+Check out the **[Live Demo](https://reddit-clone-client-i5ky.onrender.com)**.
 > **Note:** The server is hosted on a free tier, so it may take ~30 seconds to load initially while it spins up.
 
 <p align="center">
