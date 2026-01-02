@@ -28,6 +28,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.status(200).send('Health check successful!');
+});
+
 // --- API Routes (Using our project's routes) ---
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/communities', require('./routes/communityRoutes'));
